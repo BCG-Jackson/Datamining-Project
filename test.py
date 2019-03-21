@@ -12,7 +12,7 @@ def getValues(row, col, splitBy = ' '): # returns a list of values
     t = t.split(splitBy) # t is now a list of strings
     trimmed = []
     for s in t: # for strings in t
-        if s == '' or s == 'Unknown':
+        if s == '' or s.lower() == 'unknown':
             continue
         else:
             trimmed.append(s)
@@ -33,8 +33,8 @@ def trimEmpty(transactions): # transactions is a list of strings
 
 
 
-def getTransactions(maxLines = 100, preset='default'): # col defines which column to look at, maxLines is how many lines to evaluate, 
-    # presets: default, words in plots, cast and director
+def getTransactions(maxLines = -1, preset='default'): # col defines which column to look at, maxLines is how many lines to evaluate, 
+    # presets: default, words in plots, cast and director, year and genre
     # below are the column names and index
     year = 0 
     title = 1
@@ -64,6 +64,11 @@ def getTransactions(maxLines = 100, preset='default'): # col defines which colum
             directors = getValues(row, director, splitBy = ', ')
             castsAndDirectors = [*casts, *directors]
             transactions.append(castsAndDirectors)
+        elif preset == 'year and genre':
+            years = getValues(row, year, splitBy = ', ')
+            genres = getValues(row, genre, splitBy = ', ')
+            yearAndGenre = [*years, *genres]
+            transactions.append(yearAndGenre)
         line_count += 1
         if line_count == maxLines:
             break
@@ -83,9 +88,9 @@ def apriorize(transactions, support, confidence): # finds rules based on transac
 
 def driver():
     start = time.time()
-    t = getTransactions(maxLines= -1, preset = 'words in plots')
-    apriorize(t, support = .2, confidence=1)
+    t = getTransactions(maxLines= 1500, preset = 'cast and director')
+    apriorize(t, support = .0001, confidence=1)
     end = time.time()
-    print('\nExecution took '+(end - start)+' seconds.')
+    print('\nExecution took '+str(end - start)+' seconds.')
 
 driver()
