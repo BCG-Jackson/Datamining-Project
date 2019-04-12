@@ -16,7 +16,6 @@ def getValues(row, col, splitBy = ' '): # returns a list of values
             continue
         else:
             trimmed.append(s)
-
     if len(trimmed) > 0:
         return trimmed
     else:
@@ -31,10 +30,8 @@ def trimEmpty(transactions): # transactions is a list of strings
             trimmed.append(i)
     return trimmed
 
-
-
 def getTransactions(maxLines = -1, preset='default'): # col defines which column to look at, maxLines is how many lines to evaluate, 
-    # presets: default, words in plots, cast and director, year and genre
+    # presets: default, words in plots, cast and director, year and genre, ethnicity and cast
     # below are the column names and index
     year = 0 
     title = 1
@@ -69,6 +66,10 @@ def getTransactions(maxLines = -1, preset='default'): # col defines which column
             genres = getValues(row, genre, splitBy = ', ')
             yearAndGenre = [*years, *genres]
             transactions.append(yearAndGenre)
+        elif preset == 'ethnicity and cast':
+            eth = getValues(row, ethnicity, splitBy = ', ')
+            casts = getValues(row, cast, splitBy = ', ')
+            transactions.append([*eth, *casts])
         line_count += 1
         if line_count == maxLines:
             break
@@ -79,17 +80,18 @@ def getTransactions(maxLines = -1, preset='default'): # col defines which column
 def apriorize(transactions, support, confidence): # finds rules based on transaction list
     print('Applying apriori...')
     itemsets, rules = apriori(transactions, min_support=support,  min_confidence=confidence)
-    print('Rules:')
+    print('Rules: ')
     for r in rules:
         print(r)
-    print('Itemsets:')
+    print('Itemsets: ')
     for i in itemsets:
         print(i)
 
 def driver():
     start = time.time()
-    t = getTransactions(maxLines= 1500, preset = 'cast and director')
-    apriorize(t, support = .0001, confidence=1)
+    linesToProcess = 1000
+    t = getTransactions(maxLines= linesToProcess, preset = 'default')
+    apriorize(t, support = 1.0/linesToProcess, confidence=1)
     end = time.time()
     print('\nExecution took '+str(end - start)+' seconds.')
 
